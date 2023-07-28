@@ -7,22 +7,19 @@ const productManager = new ProductManager()
 router.get('/', async (req, res) => {
     const limit = req.query.limit;
     const result = await productManager.list(limit)
-    res.send(result)
+    res.json(result)
 })
 
 router.get('/:id', async (req, res) => {
-    const productId = req.params.id;
 
-    try {
+    try{
+        const productId = req.params.id;
         const product = await productManager.getById(productId);
-        if (product) {
-            res.json(product);
-            
-        } else {
-            res.status(404).json({ error: 'Producto no encontrado' });
-        }
-    } catch (error) {
-        res.status(500).json({ error: 'Error al obtener el producto' });
+        return res.json(product)
+    }catch(error){
+        res.status(404).json({
+            message: error.message
+        })
     }
 });
 
@@ -32,20 +29,33 @@ router.post('/', async (req, res) => {
     if (!(title && description && code && price && stock && category && thumbnails)) {
         return res.status(404).json({ error: 'Faltan campos obligatorios' });
     }
+    try {
 
-    const data = {
-        title,
-        description,
-        code,
-        price,
-        status: status ?? true,
-        stock,
-        category,
-        thumbnails
+        const data = {
+            title,
+            description,
+            code,
+            price,
+            status: status ?? true,
+            stock,
+            category,
+            thumbnails
+        }
+        const result = await productManager.create(data)
+        if (!result) {
+            res.status(404).json({
+                message: 'producto no creado'
+            })
+        }
+    
+        res.send(result);
+
+        
+    }catch(error){
+        res.status(500).json({
+            message: error.message
+        })
     }
-    const result = await productManager.create(data)
-    res.send(result)
-    res.status(201).send("producto creado exitosamente")
 })
 router.put('/:pid', async (req, res) => {
     const productId = req.params.pid;
@@ -60,13 +70,19 @@ router.put('/:pid', async (req, res) => {
         category,
         thumbnails
     }
-     try {
+
+    try {
         const updatedProduct = await productManager.updateProduct(updatedData, productId);
-        res.send(updatedProduct);
+        if (!updatedProduct) {
+            res.status(404).json({
+                message: 'producto no actulizado'
+            })
+        }
+        res.send({status: 'producto actualizado', updatedProduct});
     } catch (error) {
-        const status = error.status || 404
-        console.log(error.message);
-        res.status(status).json(error.message);
+        res.status(500).json({
+            message: error.message
+        })
     }
   });
     
@@ -75,11 +91,11 @@ router.delete('/:pid', async (req, res) => {
 
     try {
         await productManager.deleteProduct(productId);
-        res.send('Producto eliminado correctamente');
-    } catch (error) {
-        const status = error.status || 404;
-        console.log(error.message);
-        res.status(status).json(error.message);
+        res.send({status: 'removed product', productManager});
+    }catch(error){
+        res.status(500).json({
+            message: error.message
+        })
     }
 });
 export default router

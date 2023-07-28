@@ -27,6 +27,7 @@ export default class ProductManager extends ArchivoManager {
         return productExist;
     }
     deleteProduct = async (id) => {
+        let productExist = await this.getById(id);
         if(!productExist){
             const error=  new Error('producto no encontrado')
             error.status=404;
