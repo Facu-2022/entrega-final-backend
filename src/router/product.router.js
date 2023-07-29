@@ -7,11 +7,7 @@ const productManager = new ProductManager()
 router.get('/', async (req, res) => {
     const limit = req.query.limit;
     const result = await productManager.list(limit)
-    if (!result) {
-        res.status(400).json(`Product not found`);
-    }
     res.json(result)
-
 })
 
 router.get('/:id', async (req, res) => {
@@ -19,7 +15,10 @@ router.get('/:id', async (req, res) => {
     try{
         const productId = req.params.id;
         const product = await productManager.getById(productId);
-        return res.json(product)
+        if(!product){
+            res.status(400).json(`Product not found`)
+        }
+        res.json(product)
     }catch(error){
         res.status(404).json({
             message: error.message
@@ -71,7 +70,7 @@ router.put('/:pid', async (req, res) => {
         price: body.price,
         status: body.status ?? true,      
         stock: body.stock,     
-        category: body.category,     
+        category: body.category,
         thumbnails: body.thumbnails,
     }
 
