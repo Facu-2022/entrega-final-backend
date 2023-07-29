@@ -41,14 +41,13 @@ router.post('/', async (req, res) => {
             category,
             thumbnails
         }
-        const result = await productManager.create(data)
-        if (!result) {
-            res.status(404).json({
-                message: 'producto no creado'
-            })
-        }
-    
-        res.send(result);
+        await productManager.create(data);
+
+        res.status(404).json({
+      
+         message: `producto creado `,
+      
+        });;
 
         
     }catch(error){
@@ -59,16 +58,17 @@ router.post('/', async (req, res) => {
 })
 router.put('/:pid', async (req, res) => {
     const productId = req.params.pid;
+    const body = req.body;
 
     const updatedData = {
-        title,
-        description,
-        code,
-        price,
-        status: status ?? true,
-        stock,
-        category,
-        thumbnails
+        title: body.title,
+        description: body,          
+        code: body.code,
+        price: body.price,
+        status: body.status ?? true,      
+        stock: body.stock,     
+        category: body.category,     
+        thumbnails: body.thumbnails,
     }
 
     try {

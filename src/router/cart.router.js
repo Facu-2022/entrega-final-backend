@@ -30,14 +30,8 @@ router.get('/:cid/', async (req, res) => {
 
 router.post('/', async(req,res)=>{
     try{
-        const result = await cartManager.create()
-        if (!result) {
-            res.status(404).json({
-                message: 'carrito no creado'
-            })
-        }
-        
-        res.send({status: 'cart creado', result});
+        await cartManager.create();
+        res.send({ status: "cart creado", result });
     }catch{
         res.status(500).json({
             message: error.message
