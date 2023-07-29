@@ -7,7 +7,11 @@ const productManager = new ProductManager()
 router.get('/', async (req, res) => {
     const limit = req.query.limit;
     const result = await productManager.list(limit)
+    if (!result) {
+        res.status(400).json(`Product not found`);
+    }
     res.json(result)
+
 })
 
 router.get('/:id', async (req, res) => {
